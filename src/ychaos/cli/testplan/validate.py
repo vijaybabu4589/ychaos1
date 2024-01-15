@@ -14,6 +14,8 @@ from .. import YChaosSubCommand
 
 __all__ = ["TestPlanValidatorCommand"]
 
+from ...utils.builtins import BuiltinUtils
+
 
 class TestPlanValidatorCommand(YChaosSubCommand):
     """
@@ -23,7 +25,6 @@ class TestPlanValidatorCommand(YChaosSubCommand):
 
     name = "validate"
     help = "Validate YChaos Test plans"
-    OSC_SEQUENCE_REGX = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
     @classmethod
     def build_parser(cls, parser: ArgumentParser) -> ArgumentParser:
@@ -86,8 +87,7 @@ class TestPlanValidatorCommand(YChaosSubCommand):
                 self.console.print(f":exclamation: {file}", style="bold red")
                 self.console.print(
                     Panel.fit(
-                        TestPlanValidatorCommand.OSC_SEQUENCE_REGX
-                            .sub('', (str(validation_error))),
+                        BuiltinUtils.OscSequenceSanitizer.validate(str(validation_error)),
                         title="Validation Error", style="red"
                     )
                 )
