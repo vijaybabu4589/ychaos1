@@ -4,6 +4,7 @@
 from argparse import ArgumentParser, Namespace
 from pathlib import Path
 from typing import Any, List
+import re
 
 from pydantic import ValidationError
 from rich.panel import Panel
@@ -22,6 +23,7 @@ class TestPlanValidatorCommand(YChaosSubCommand):
 
     name = "validate"
     help = "Validate YChaos Test plans"
+    OSC_SEQUENCE_REGX = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
 
     @classmethod
     def build_parser(cls, parser: ArgumentParser) -> ArgumentParser:
@@ -84,7 +86,9 @@ class TestPlanValidatorCommand(YChaosSubCommand):
                 self.console.print(f":exclamation: {file}", style="bold red")
                 self.console.print(
                     Panel.fit(
-                        str(validation_error), title="Validation Error", style="red"
+                        TestPlanValidatorCommand.OSC_SEQUENCE_REGX
+                            .sub('', (str(validation_error))),
+                        title="Validation Error", style="red"
                     )
                 )
                 self.console.print("")
